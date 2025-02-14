@@ -3,6 +3,8 @@ package com.xcoder.transaction.handler;
 import com.xcoder.transaction.entity.Order;
 import com.xcoder.transaction.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderHandler {
@@ -12,6 +14,7 @@ public class OrderHandler {
         this.orderRepository = orderRepository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public Order saveOrder(Order order) {
         return orderRepository.save(order);
     }

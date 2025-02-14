@@ -1,8 +1,11 @@
 package com.xcoder.transaction.handler;
 
 import com.xcoder.transaction.entity.Product;
+import com.xcoder.transaction.exception.DatabaseCrashException;
 import com.xcoder.transaction.repository.InventoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InventoryHandler {
@@ -12,12 +15,13 @@ public class InventoryHandler {
         this.inventoryRepository = inventoryRepository;
     }
 
-    public Product updateProductDetails(Product product) {
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateProductDetails(Product product) {
         // forcefully throwing exception to simulate use of tx
         if (product.getPrice() > 5000) {
-            throw new RuntimeException("DB crashed...");
+            throw new DatabaseCrashException("DB crashed...");
         }
-        return inventoryRepository.save(product);
+        inventoryRepository.save(product);
     }
 
     public Product getProduct(int id) {
