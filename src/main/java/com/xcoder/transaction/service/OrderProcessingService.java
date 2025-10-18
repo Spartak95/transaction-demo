@@ -44,6 +44,7 @@ public class OrderProcessingService {
     // if there is any exception without impacting outer transaction
 
     // outer transaction
+    // isolation - controls the visibility of changes made by one transaction to other transaction
     @Transactional(propagation = Propagation.REQUIRED)
     public Order placeAnOrder(Order order) {
         Product product = inventoryHandler.getProduct(order.getProductId());
