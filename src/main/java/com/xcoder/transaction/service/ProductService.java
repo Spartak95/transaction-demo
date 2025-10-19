@@ -19,7 +19,7 @@ public class ProductService {
     private final InventoryRepository inventoryRepository;
 
     // Transaction A
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void updateStock(int productId, int stock) throws InterruptedException {
         // Retrieve the product and update its stock
         Product product = inventoryRepository.findById(productId)
@@ -48,5 +48,28 @@ public class ProductService {
         log.info("Transaction B: Read stock as {}", product.getStockQuantity());
 
         return product.getStockQuantity();
+    }
+
+    // Transaction B: Read stock multiple times
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void fetchStock(int productId) {
+        // First read
+        Product product1 = inventoryRepository.findById(productId)
+            .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+
+        log.info("Transaction B: First read stock as {}", product1.getStockQuantity()); // 40
+
+        // Simulate a delay to allow Transaction A to update the stock
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+            Thread.currentThread().interrupt();
+        }
+
+        // Second read
+        Product product2 = inventoryRepository.findById(productId)
+            .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+        log.info("Transaction B: Second read stock as {}", product2.getStockQuantity()); // 40
     }
 }

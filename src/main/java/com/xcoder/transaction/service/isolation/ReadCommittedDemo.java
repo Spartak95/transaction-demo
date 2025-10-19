@@ -1,8 +1,10 @@
 package com.xcoder.transaction.service.isolation;
 
 import com.xcoder.transaction.service.ProductService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class ReadCommittedDemo {
     private final ProductService productService;
@@ -18,7 +20,7 @@ public class ReadCommittedDemo {
             try {
                 productService.updateStock(id, 5);
             } catch (InterruptedException e) {
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
                 Thread.currentThread().interrupt();
             }
         });
@@ -29,9 +31,9 @@ public class ReadCommittedDemo {
             try {
                 Thread.sleep(2000); // Wait a moment to ensure Thread A starts and holds the transaction
                 int stock = productService.checkStock(id); // Read stock during Transaction A
-                System.out.println("Stock read by Transaction B: " + stock);
+                log.info("Stock read by Transaction B: {}", stock);
             } catch (InterruptedException e) {
-                System.out.println(e.getMessage());
+                log.error(e.getMessage());
                 Thread.currentThread().interrupt();
             }
         });
