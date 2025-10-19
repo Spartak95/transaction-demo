@@ -19,7 +19,7 @@ public class ProductService {
     private final InventoryRepository inventoryRepository;
 
     // Transaction A
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void updateStock(int productId, int stock) throws InterruptedException {
         // Retrieve the product and update its stock
         Product product = inventoryRepository.findById(productId)
@@ -39,7 +39,7 @@ public class ProductService {
     }
 
     // Transaction B: Read stock
-    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public int checkStock(int productId) {
         // Retrieve the product and read its stock (potentially dirty read)
         Product product = inventoryRepository.findById(productId)

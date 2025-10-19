@@ -5,6 +5,7 @@ import com.xcoder.transaction.service.OrderProcessingService;
 import com.xcoder.transaction.service.isolation.ReadCommittedDemo;
 import com.xcoder.transaction.service.isolation.ReadUncommittedDemo;
 import com.xcoder.transaction.service.isolation.RepeatableCommittedDemo;
+import com.xcoder.transaction.service.isolation.SerializableIsolationDemo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,15 +20,18 @@ public class OrderProcessingController {
     private final ReadUncommittedDemo readUncommittedDemo;
     private final ReadCommittedDemo readCommittedDemo;
     private final RepeatableCommittedDemo repeatableCommittedDemo;
+    private final SerializableIsolationDemo serializableIsolationDemo;
 
     public OrderProcessingController(OrderProcessingService orderProcessingService,
                                      ReadUncommittedDemo readUncommittedDemo,
                                      ReadCommittedDemo readCommittedDemo,
-                                     RepeatableCommittedDemo repeatableCommittedDemo) {
+                                     RepeatableCommittedDemo repeatableCommittedDemo,
+                                     SerializableIsolationDemo serializableIsolationDemo) {
         this.orderProcessingService = orderProcessingService;
         this.readUncommittedDemo = readUncommittedDemo;
         this.readCommittedDemo = readCommittedDemo;
         this.repeatableCommittedDemo = repeatableCommittedDemo;
+        this.serializableIsolationDemo = serializableIsolationDemo;
     }
 
     @PostMapping
@@ -39,7 +43,8 @@ public class OrderProcessingController {
     public String testIsolation() throws InterruptedException {
         //readUncommittedDemo.testReadUncommitted(1);
         //readCommittedDemo.testReadCommitted(1);
-        repeatableCommittedDemo.demonstrateRepeatableRead(1);
+        //repeatableCommittedDemo.demonstrateRepeatableRead(1);
+        serializableIsolationDemo.testSerializableIsolation(1);
         return "success";
     }
 }
