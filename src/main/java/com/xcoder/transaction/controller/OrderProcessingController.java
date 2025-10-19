@@ -2,6 +2,7 @@ package com.xcoder.transaction.controller;
 
 import com.xcoder.transaction.entity.Order;
 import com.xcoder.transaction.service.OrderProcessingService;
+import com.xcoder.transaction.service.isolation.ReadCommittedDemo;
 import com.xcoder.transaction.service.isolation.ReadUncommittedDemo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,11 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderProcessingController {
     private final OrderProcessingService orderProcessingService;
     private final ReadUncommittedDemo readUncommittedDemo;
+    private final ReadCommittedDemo readCommittedDemo;
 
     public OrderProcessingController(OrderProcessingService orderProcessingService,
-                                     ReadUncommittedDemo readUncommittedDemo) {
+                                     ReadUncommittedDemo readUncommittedDemo,
+                                     ReadCommittedDemo readCommittedDemo) {
         this.orderProcessingService = orderProcessingService;
         this.readUncommittedDemo = readUncommittedDemo;
+        this.readCommittedDemo = readCommittedDemo;
     }
 
     @PostMapping
@@ -29,7 +33,8 @@ public class OrderProcessingController {
 
     @GetMapping("/isolation")
     public String testIsolation() throws InterruptedException {
-        readUncommittedDemo.testReadUncommitted(1);
+        //readUncommittedDemo.testReadUncommitted(1);
+        readCommittedDemo.testReadCommitted(1);
         return "success";
     }
 }

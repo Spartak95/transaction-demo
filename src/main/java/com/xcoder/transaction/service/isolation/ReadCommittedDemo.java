@@ -1,0 +1,47 @@
+package com.xcoder.transaction.service.isolation;
+
+import com.xcoder.transaction.service.ProductService;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ReadCommittedDemo {
+    private final ProductService productService;
+
+    public ReadCommittedDemo(ProductService productService) {
+        this.productService = productService;
+    }
+
+    public void testReadCommitted(int id) throws InterruptedException {
+        // 50 -> 5
+        // Start Transaction A(Thread 1) to update the stock but not commit, then roll back
+        Thread threadA = new Thread(() -> {
+            try {
+                productService.updateStock(id, 5);
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        // Start Transaction B(Thread 2) to read the stock
+        // 50
+        Thread threadB = new Thread(() -> {
+            try {
+                Thread.sleep(2000); // Wait a moment to ensure Thread A starts and holds the transaction
+                int stock = productService.checkStock(id); // Read stock during Transaction A
+                System.out.println("Stock read by Transaction B: " + stock);
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+                Thread.currentThread().interrupt();
+            }
+        });
+
+        // Start the threads
+        threadA.start();
+        threadB.start();
+
+        // Wait for threads to complete
+        threadA.join();
+        threadB.join();
+    }
+}

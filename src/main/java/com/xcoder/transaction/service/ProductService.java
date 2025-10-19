@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 @Slf4j
 @Service
@@ -18,7 +19,7 @@ public class ProductService {
     private final InventoryRepository inventoryRepository;
 
     // Transaction A
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void updateStock(int productId, int stock) throws InterruptedException {
         // Retrieve the product and update its stock
         Product product = inventoryRepository.findById(productId)
@@ -31,11 +32,14 @@ public class ProductService {
         // Simulate a long-running transaction(does not commit yet)
         log.info("Transaction A: Stock updated to {}", stock);
         Thread.sleep(5000);
+
+        //log.info("Transaction A: Rolling back the update");
+        //TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         log.info("Transaction A: Commited the update");
     }
 
     // Transaction B: Read stock
-    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public int checkStock(int productId) {
         // Retrieve the product and read its stock (potentially dirty read)
         Product product = inventoryRepository.findById(productId)
